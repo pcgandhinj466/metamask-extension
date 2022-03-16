@@ -26,6 +26,15 @@ describe('MetaMask', function () {
         await driver.fill('#password', 'correct horse battery staple');
         await driver.press('#password', driver.Key.ENTER);
 
+        const loaderIsPresent = await driver.isElementPresent(
+          '.loading-overlay',
+        );
+        if (loaderIsPresent) {
+          await driver.wait(async () => {
+            const loader = await driver.isElementPresent('.loading-overlay');
+            return !loader;
+          });
+        }
         await driver.openNewPage('http://127.0.0.1:8080/');
         const networkDiv = await driver.waitForSelector({
           css: '#network',
@@ -79,6 +88,15 @@ describe('MetaMask', function () {
         await driver.fill('#password', 'correct horse battery staple');
         await driver.press('#password', driver.Key.ENTER);
 
+        const loaderIsPresent = await driver.isElementPresent(
+          '.loading-overlay',
+        );
+        if (loaderIsPresent) {
+          await driver.wait(async () => {
+            const loader = await driver.isElementPresent('.loading-overlay');
+            return !loader;
+          });
+        }
         await driver.openNewPage('http://127.0.0.1:8080/');
         for (const unsupportedMethod of ['eth_signTransaction']) {
           assert.equal(

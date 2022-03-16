@@ -43,6 +43,16 @@ describe('State logs', function () {
         await driver.fill('#password', 'correct horse battery staple');
         await driver.press('#password', driver.Key.ENTER);
 
+        const loaderIsPresent = await driver.isElementPresent(
+          '.loading-overlay',
+        );
+        if (loaderIsPresent) {
+          await driver.wait(async () => {
+            const loader = await driver.isElementPresent('.loading-overlay');
+            return !loader;
+          });
+        }
+
         // Download State Logs
         await driver.clickElement('.account-menu__icon');
         await driver.clickElement({ text: 'Settings', tag: 'div' });

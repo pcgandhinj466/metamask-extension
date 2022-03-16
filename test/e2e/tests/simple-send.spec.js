@@ -17,6 +17,17 @@ describe('Simple send', function () {
         await driver.navigate();
         await driver.fill('#password', 'correct horse battery staple');
         await driver.press('#password', driver.Key.ENTER);
+
+        const loaderIsPresent = await driver.isElementPresent(
+          '.loading-overlay',
+        );
+        if (loaderIsPresent) {
+          await driver.wait(async () => {
+            const loader = await driver.isElementPresent('.loading-overlay');
+            return !loader;
+          });
+        }
+
         await driver.clickElement('[data-testid="eth-overview-send"]');
         await driver.fill(
           '[data-testid="ens-input"]',

@@ -210,6 +210,16 @@ describe('MetaMask Responsive UI', function () {
         await driver.fill('#password', 'correct horse battery staple');
         await driver.press('#password', driver.Key.ENTER);
 
+        const loaderIsPresent = await driver.isElementPresent(
+          '.loading-overlay',
+        );
+        if (loaderIsPresent) {
+          await driver.wait(async () => {
+            const loader = await driver.isElementPresent('.loading-overlay');
+            return !loader;
+          });
+        }
+
         // Send ETH from inside MetaMask
         // starts to send a transaction
         await driver.clickElement('[data-testid="eth-overview-send"]');

@@ -23,6 +23,16 @@ describe('Navigate transactions', function () {
         await driver.fill('#password', 'correct horse battery staple');
         await driver.press('#password', driver.Key.ENTER);
 
+        const loaderIsPresent = await driver.isElementPresent(
+          '.loading-overlay',
+        );
+        if (loaderIsPresent) {
+          await driver.wait(async () => {
+            const loader = await driver.isElementPresent('.loading-overlay');
+            return !loader;
+          });
+        }
+
         // navigate transactions
         await driver.clickElement('[data-testid="next-page"]');
         let navigationElement = await driver.findElement(
@@ -111,6 +121,16 @@ describe('Navigate transactions', function () {
         await driver.fill('#password', 'correct horse battery staple');
         await driver.press('#password', driver.Key.ENTER);
 
+        const loaderIsPresent = await driver.isElementPresent(
+          '.loading-overlay',
+        );
+        if (loaderIsPresent) {
+          await driver.wait(async () => {
+            const loader = await driver.isElementPresent('.loading-overlay');
+            return !loader;
+          });
+        }
+
         await driver.clickElement('[data-testid="next-page"]');
         let navigationElement = await driver.findElement(
           '.confirm-page-container-navigation',
@@ -158,6 +178,16 @@ describe('Navigate transactions', function () {
         await driver.fill('#password', 'correct horse battery staple');
         await driver.press('#password', driver.Key.ENTER);
 
+        const loaderIsPresent = await driver.isElementPresent(
+          '.loading-overlay',
+        );
+        if (loaderIsPresent) {
+          await driver.wait(async () => {
+            const loader = await driver.isElementPresent('.loading-overlay');
+            return !loader;
+          });
+        }
+
         // reject transaction
         await driver.clickElement({ text: 'Reject', tag: 'button' });
         const navigationElement = await driver.waitForSelector(
@@ -189,6 +219,16 @@ describe('Navigate transactions', function () {
         await driver.fill('#password', 'correct horse battery staple');
         await driver.press('#password', driver.Key.ENTER);
 
+        const loaderIsPresent = await driver.isElementPresent(
+          '.loading-overlay',
+        );
+        if (loaderIsPresent) {
+          await driver.wait(async () => {
+            const loader = await driver.isElementPresent('.loading-overlay');
+            return !loader;
+          });
+        }
+
         // confirm transaction
         await driver.clickElement({ text: 'Confirm', tag: 'button' });
         const navigationElement = await driver.waitForSelector(
@@ -219,6 +259,16 @@ describe('Navigate transactions', function () {
         await driver.navigate();
         await driver.fill('#password', 'correct horse battery staple');
         await driver.press('#password', driver.Key.ENTER);
+
+        const loaderIsPresent = await driver.isElementPresent(
+          '.loading-overlay',
+        );
+        if (loaderIsPresent) {
+          await driver.wait(async () => {
+            const loader = await driver.isElementPresent('.loading-overlay');
+            return !loader;
+          });
+        }
 
         // reject transactions
         await driver.clickElement({ text: 'Reject 4', tag: 'a' });

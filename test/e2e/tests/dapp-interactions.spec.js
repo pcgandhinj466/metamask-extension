@@ -78,6 +78,16 @@ describe('Dapp interactions', function () {
         await driver.fill('#password', 'correct horse battery staple');
         await driver.press('#password', driver.Key.ENTER);
 
+        const loaderIsPresent = await driver.isElementPresent(
+          '.loading-overlay',
+        );
+        if (loaderIsPresent) {
+          await driver.wait(async () => {
+            const loader = await driver.isElementPresent('.loading-overlay');
+            return !loader;
+          }, 6000);
+        }
+
         // Connect to Dapp0
         await connectDappWithExtensionPopup(driver, 0);
         windowHandles = await driver.getAllWindowHandles();
@@ -102,6 +112,10 @@ describe('Dapp interactions', function () {
         await driver.switchToWindow(popup);
         await driver.fill('#password', 'correct horse battery staple');
         await driver.press('#password', driver.Key.ENTER);
+        await driver.wait(async () => {
+          const loader = await driver.isElementPresent('.loading-overlay');
+          return !loader;
+        }, 6000);
         await driver.clickElement({ text: 'Next', tag: 'button' });
         await driver.clickElement({ text: 'Connect', tag: 'button' });
 
@@ -109,6 +123,11 @@ describe('Dapp interactions', function () {
         await driver.switchToWindow(extension);
         await driver.fill('#password', 'correct horse battery staple');
         await driver.press('#password', driver.Key.ENTER);
+        await driver.wait(async () => {
+          const loader = await driver.isElementPresent('.loading-overlay');
+          return !loader;
+        }, 6000);
+
         await driver.clickElement(
           '[data-testid ="account-options-menu-button"]',
         );

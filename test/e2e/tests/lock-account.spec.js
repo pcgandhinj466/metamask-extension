@@ -23,6 +23,16 @@ describe('Lock and unlock', function () {
         await driver.fill('#password', 'correct horse battery staple');
         await driver.press('#password', driver.Key.ENTER);
 
+        const loaderIsPresent = await driver.isElementPresent(
+          '.loading-overlay',
+        );
+        if (loaderIsPresent) {
+          await driver.wait(async () => {
+            const loader = await driver.isElementPresent('.loading-overlay');
+            return !loader;
+          });
+        }
+
         await driver.clickElement('.account-menu__icon');
         const lockButton = await driver.findClickableElement(
           '.account-menu__lock-button',

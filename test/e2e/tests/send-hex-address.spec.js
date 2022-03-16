@@ -27,6 +27,16 @@ describe('Send ETH to a 40 character hexadecimal address', function () {
         await driver.fill('#password', 'correct horse battery staple');
         await driver.press('#password', driver.Key.ENTER);
 
+        const loaderIsPresent = await driver.isElementPresent(
+          '.loading-overlay',
+        );
+        if (loaderIsPresent) {
+          await driver.wait(async () => {
+            const loader = await driver.isElementPresent('.loading-overlay');
+            return !loader;
+          });
+        }
+
         // Send ETH
         await driver.clickElement('[data-testid="eth-overview-send"]');
 
@@ -77,6 +87,16 @@ describe('Send ETH to a 40 character hexadecimal address', function () {
         await driver.navigate();
         await driver.fill('#password', 'correct horse battery staple');
         await driver.press('#password', driver.Key.ENTER);
+
+        const loaderIsPresent = await driver.isElementPresent(
+          '.loading-overlay',
+        );
+        if (loaderIsPresent) {
+          await driver.wait(async () => {
+            const loader = await driver.isElementPresent('.loading-overlay');
+            return !loader;
+          });
+        }
 
         // Send ETH
         await driver.clickElement('[data-testid="eth-overview-send"]');
@@ -142,6 +162,15 @@ describe('Send ERC20 to a 40 character hexadecimal address', function () {
         await driver.fill('#password', 'correct horse battery staple');
         await driver.press('#password', driver.Key.ENTER);
 
+        const loaderIsPresent = await driver.isElementPresent(
+          '.loading-overlay',
+        );
+        if (loaderIsPresent) {
+          await driver.wait(async () => {
+            const loader = await driver.isElementPresent('.loading-overlay');
+            return !loader;
+          });
+        }
         // Create TST
         await driver.openNewPage('http://127.0.0.1:8080/');
         await driver.clickElement('#createToken');
@@ -241,6 +270,15 @@ describe('Send ERC20 to a 40 character hexadecimal address', function () {
         await driver.fill('#password', 'correct horse battery staple');
         await driver.press('#password', driver.Key.ENTER);
 
+        const loaderIsPresent = await driver.isElementPresent(
+          '.loading-overlay',
+        );
+        if (loaderIsPresent) {
+          await driver.wait(async () => {
+            const loader = await driver.isElementPresent('.loading-overlay');
+            return !loader;
+          });
+        }
         // Create TST
         await driver.openNewPage('http://127.0.0.1:8080/');
         await driver.clickElement('#createToken');

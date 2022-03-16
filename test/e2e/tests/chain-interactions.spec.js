@@ -27,6 +27,16 @@ describe('Chain Interactions', function () {
         await driver.fill('#password', 'correct horse battery staple');
         await driver.press('#password', driver.Key.ENTER);
 
+        const loaderIsPresent = await driver.isElementPresent(
+          '.loading-overlay',
+        );
+        if (loaderIsPresent) {
+          await driver.wait(async () => {
+            const loader = await driver.isElementPresent('.loading-overlay');
+            return !loader;
+          });
+        }
+
         // trigger add chain confirmation
         await driver.openNewPage('http://127.0.0.1:8080/');
         await driver.clickElement('#addEthereumChain');
@@ -81,6 +91,16 @@ describe('Chain Interactions', function () {
         await driver.navigate();
         await driver.fill('#password', 'correct horse battery staple');
         await driver.press('#password', driver.Key.ENTER);
+
+        const loaderIsPresent = await driver.isElementPresent(
+          '.loading-overlay',
+        );
+        if (loaderIsPresent) {
+          await driver.wait(async () => {
+            const loader = await driver.isElementPresent('.loading-overlay');
+            return !loader;
+          });
+        }
 
         // trigger add chain confirmation
         await driver.openNewPage('http://127.0.0.1:8080/');

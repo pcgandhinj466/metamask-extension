@@ -29,6 +29,15 @@ describe('Sign Typed Data V4 Signature Request', function () {
         await driver.fill('#password', 'correct horse battery staple');
         await driver.press('#password', driver.Key.ENTER);
 
+        const loaderIsPresent = await driver.isElementPresent(
+          '.loading-overlay',
+        );
+        if (loaderIsPresent) {
+          await driver.wait(async () => {
+            const loader = await driver.isElementPresent('.loading-overlay');
+            return !loader;
+          });
+        }
         await driver.openNewPage('http://127.0.0.1:8080/');
 
         // creates a sign typed data signature request
@@ -111,6 +120,15 @@ describe('Sign Typed Data V3 Signature Request', function () {
         await driver.fill('#password', 'correct horse battery staple');
         await driver.press('#password', driver.Key.ENTER);
 
+        const loaderIsPresent = await driver.isElementPresent(
+          '.loading-overlay',
+        );
+        if (loaderIsPresent) {
+          await driver.wait(async () => {
+            const loader = await driver.isElementPresent('.loading-overlay');
+            return !loader;
+          });
+        }
         await driver.openNewPage('http://127.0.0.1:8080/');
 
         // creates a sign typed data signature request
@@ -189,6 +207,15 @@ describe('Sign Typed Data Signature Request', function () {
         await driver.fill('#password', 'correct horse battery staple');
         await driver.press('#password', driver.Key.ENTER);
 
+        const loaderIsPresent = await driver.isElementPresent(
+          '.loading-overlay',
+        );
+        if (loaderIsPresent) {
+          await driver.wait(async () => {
+            const loader = await driver.isElementPresent('.loading-overlay');
+            return !loader;
+          });
+        }
         await driver.openNewPage('http://127.0.0.1:8080/');
 
         // creates a sign typed data signature request

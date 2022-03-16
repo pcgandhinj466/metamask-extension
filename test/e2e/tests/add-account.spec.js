@@ -33,7 +33,18 @@ describe('Add account', function () {
         await driver.fill('#password', 'correct horse battery staple');
         await driver.press('#password', driver.Key.ENTER);
 
+        const loadingOverlay = await driver.isElementPresent(
+          '.loading-overlay',
+        );
+        if (loadingOverlay) {
+          await driver.wait(async () => {
+            const isLoading = await driver.isElementPresent('.loading-overlay');
+            return !isLoading;
+          });
+        }
+
         await driver.clickElement('.account-menu__icon');
+        await driver.waitForSelector('.account-menu__accounts');
         await driver.clickElement({ text: 'Create Account', tag: 'div' });
         await driver.fill('.new-account-create-form input', '2nd account');
         await driver.clickElement({ text: 'Create', tag: 'button' });
@@ -214,9 +225,20 @@ describe('Add account', function () {
         await driver.fill('#password', 'correct horse battery staple');
         await driver.press('#password', driver.Key.ENTER);
 
+        const loadingOverlay = await driver.isElementPresent(
+          '.loading-overlay',
+        );
+        if (loadingOverlay) {
+          await driver.wait(async () => {
+            const isLoading = await driver.isElementPresent('.loading-overlay');
+            return !isLoading;
+          });
+        }
+
         await driver.delay(regularDelayMs);
 
         await driver.clickElement('.account-menu__icon');
+        await driver.waitForSelector('.account-menu__accounts');
         await driver.clickElement({ text: 'Create Account', tag: 'div' });
         await driver.fill('.new-account-create-form input', '2nd account');
         await driver.clickElement({ text: 'Create', tag: 'button' });

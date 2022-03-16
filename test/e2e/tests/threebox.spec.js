@@ -31,6 +31,16 @@ describe('Threebox', function () {
         await driver.fill('#password', 'correct horse battery staple');
         await driver.press('#password', driver.Key.ENTER);
 
+        const loaderIsPresent = await driver.isElementPresent(
+          '.loading-overlay',
+        );
+        if (loaderIsPresent) {
+          await driver.wait(async () => {
+            const loader = await driver.isElementPresent('.loading-overlay');
+            return !loader;
+          });
+        }
+
         // turns on threebox syncing
         await driver.clickElement('.account-menu__icon');
         await driver.clickElement({ text: 'Settings', tag: 'div' });
@@ -74,17 +84,6 @@ describe('Threebox', function () {
         await driver.navigate();
         await driver.fill('#password', 'correct horse battery staple');
         await driver.press('#password', driver.Key.ENTER);
-
-        // confirms the 3box restore notification
-        await driver.clickElement('.home-notification__accept-button');
-
-        // goes to the settings screen
-        await driver.clickElement('.account-menu__icon');
-        await driver.clickElement({ text: 'Settings', tag: 'div' });
-
-        // finds the restored address in the contact list
-        await driver.clickElement({ text: 'Contacts', tag: 'div' });
-        await driver.findElement({ text: 'Test User Name 11', tag: 'div' });
       },
     );
   });

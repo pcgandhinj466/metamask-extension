@@ -23,6 +23,16 @@ describe('Show account details', function () {
         await driver.fill('#password', 'correct horse battery staple');
         await driver.press('#password', driver.Key.ENTER);
 
+        const loadingOverlay = await driver.isElementPresent(
+          '.loading-overlay',
+        );
+        if (loadingOverlay) {
+          await driver.wait(async () => {
+            const isLoading = await driver.isElementPresent('.loading-overlay');
+            return !isLoading;
+          });
+        }
+
         await driver.clickElement(
           '[data-testid="account-options-menu-button"]',
         );

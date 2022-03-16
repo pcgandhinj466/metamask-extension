@@ -23,6 +23,16 @@ describe('Hide token', function () {
         await driver.fill('#password', 'correct horse battery staple');
         await driver.press('#password', driver.Key.ENTER);
 
+        const loadingOverlay = await driver.isElementPresent(
+          '.loading-overlay',
+        );
+        if (loadingOverlay) {
+          await driver.wait(async () => {
+            const isLoading = await driver.isElementPresent('.loading-overlay');
+            return !isLoading;
+          });
+        }
+
         await driver.waitForSelector({
           css: '.asset-list-item__token-button',
           text: '0 TST',
@@ -80,6 +90,11 @@ describe('Add existing token using search', function () {
         await driver.navigate();
         await driver.fill('#password', 'correct horse battery staple');
         await driver.press('#password', driver.Key.ENTER);
+
+        await driver.wait(async () => {
+          const pendingTxes = await driver.isElementPresent('.loading-overlay');
+          return !pendingTxes;
+        });
 
         await driver.clickElement({ text: 'import tokens', tag: 'a' });
         await driver.fill('#search-tokens', 'BAT');
