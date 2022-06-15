@@ -8,6 +8,7 @@ import { NETWORK_TO_NAME_MAP } from '../../../../shared/constants/network';
 
 import { PageContainerFooter } from '../../ui/page-container';
 import Button from '../../ui/button';
+import Box from '../../ui/box';
 import ActionableMessage from '../../ui/actionable-message/actionable-message';
 import SenderToRecipient from '../../ui/sender-to-recipient';
 
@@ -189,7 +190,9 @@ export default class ConfirmPageContainer extends Component {
               />
             )}
           </ConfirmPageContainerHeader>
-          <EnableEIP1559V2Notice />
+          <Box padding={4}>
+            <EnableEIP1559V2Notice />
+          </Box>
           {contentComponent || (
             <ConfirmPageContainerContent
               action={action}
