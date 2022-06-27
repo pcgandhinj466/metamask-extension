@@ -1,0 +1,60 @@
+@mixin base-styles() {
+  padding: 16px;
+  border: 1px solid var(--color-border-default);
+}
+
+.screen-size-mixins {
+  &__sm-min {
+    @include base-styles;
+
+    @include screen-sm-min {
+      background-color: var(--color-info-muted);
+      border-color: var(--color-info-default);
+    }
+  }
+
+  &__md-min {
+    @include base-styles;
+
+    @include screen-md-min {
+      background-color: var(--color-info-muted);
+      border-color: var(--color-info-default);
+    }
+  }
+
+  &__lg-min {
+    @include base-styles;
+
+    @include screen-lg-min {
+      background-color: var(--color-info-muted);
+      border-color: var(--color-info-default);
+    }
+  }
+
+  &__sm-max {
+    @include base-styles;
+
+    @include screen-sm-max {
+      background-color: var(--color-error-muted);
+      border-color: var(--color-error-default);
+    }
+  }
+
+  &__md-max {
+    @include base-styles;
+
+    @include screen-md-max {
+      background-color: var(--color-error-muted);
+      border-color: var(--color-error-default);
+    }
+  }
+
+  &__lg-max {
+    @include base-styles;
+
+    @include screen-lg-max {
+      background-color: var(--color-error-muted);
+      border-color: var(--color-error-default);
+    }
+  }
+}

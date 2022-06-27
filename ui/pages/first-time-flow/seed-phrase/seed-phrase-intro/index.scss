@@ -2,7 +2,7 @@
   &__sections {
     display: flex;
 
-    @media screen and (min-width: $break-large) {
+    @include screen-sm-min {
       flex-direction: row;
     }
 

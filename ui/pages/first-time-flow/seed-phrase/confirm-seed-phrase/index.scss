@@ -1,10 +1,18 @@
+@use "sass:map";
+
 .confirm-seed-phrase {
   &__back-button {
     margin-bottom: 12px;
   }
 
   &__sorted-seed-words {
-    max-width: $break-small;
+    max-width:
+      calc(
+        map.get(
+          $screen-sizes-map,
+          "sm"
+        ) - 1px
+      );
   }
 
   &__seed-word {
@@ -57,7 +65,7 @@
       color: transparent;
     }
 
-    @media screen and (max-width: $break-small) {
+    @include screen-sm-max {
       @include H6;
 
       padding: 6px 18px;
@@ -70,7 +78,13 @@
     display: flex;
     flex-flow: row wrap;
     min-height: 161px;
-    max-width: $break-small;
+    max-width:
+      calc(
+        map.get(
+          $screen-sizes-map,
+          "sm"
+        ) - 1px
+      );
     border: 1px solid var(--color-border-muted);
     border-radius: 6px;
     background-color: var(--color-background-default);
