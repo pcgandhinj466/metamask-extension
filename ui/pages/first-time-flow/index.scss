@@ -4,6 +4,8 @@
 @import 'end-of-flow/index';
 @import 'metametrics-opt-in/index';
 
+$wrapper-width: 1010px;
+
 
 .first-time-flow {
   width: 100%;
@@ -106,10 +108,10 @@
 
 .first-time-flow__wrapper.intro {
   @include screen-sm-min {
-    max-width: 1010px;
+    max-width: $wrapper-width;
   }
 
-  @media screen and (max-width: 1010px) {
+  @media screen and (max-width: $wrapper-width) {
     padding: 0 20px;
   }
 }
