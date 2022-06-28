@@ -48,6 +48,7 @@ const metamaskrc = require('rc')('metamask', {
 
 const { streamFlatMap } = require('../stream-flat-map.js');
 const { BuildType } = require('../lib/build-type');
+const { BUILD_TARGETS } = require('./constants');
 
 const {
   createTask,
@@ -71,6 +72,32 @@ const ENVIRONMENT = {
   STAGING: 'staging',
   TESTING: 'testing',
 };
+
+/**
+ * Returns whether the current build is a development build or not.
+ *
+ * @param {BUILD_TARGETS} buildTarget - The current build target.
+ * @returns Whether the current build is a development build.
+ */
+function isDevBuild(buildTarget) {
+  return (
+    buildTarget === BUILD_TARGETS.DEVELOPMENT ||
+    buildTarget === BUILD_TARGETS.E2E_TEST_DEV
+  );
+}
+
+/**
+ * Returns whether the current build is an e2e test build or not.
+ *
+ * @param {BUILD_TARGETS} buildTarget - The current build target.
+ * @returns Whether the current build is an e2e test build.
+ */
+function isTestBuild(buildTarget) {
+  return (
+    buildTarget === BUILD_TARGETS.E2E_TEST ||
+    buildTarget === BUILD_TARGETS.E2E_TEST_DEV
+  );
+}
 
 /**
  * Get a value from the configuration, and confirm that it is set.
@@ -193,45 +220,56 @@ function createScriptTasks({
   policyOnly,
   version,
 }) {
-  // internal tasks
-  const core = {
+  // high level tasks
+  return {
     // dev tasks (live reload)
     dev: createTasksForScriptBundles({
+      buildTarget: BUILD_TARGETS.DEVELOPMENT,
       taskPrefix: 'scripts:core:dev',
-      devMode: true,
     }),
-    testDev: createTasksForScriptBundles({
-      taskPrefix: 'scripts:core:test-live',
-      devMode: true,
-      testing: true,
+    // production-like distributable build
+    dist: createTasksForScriptBundles({
+      buildTarget: BUILD_TARGETS.DISTRIBUTION,
+      taskPrefix: 'scripts:core:dist',
+    }),
+    // production
+    prod: createTasksForScriptBundles({
+      buildTarget: BUILD_TARGETS.PRODUCTION,
+      taskPrefix: 'scripts:core:prod',
     }),
     // built for CI tests
     test: createTasksForScriptBundles({
+      buildTarget: BUILD_TARGETS.E2E_TEST,
       taskPrefix: 'scripts:core:test',
-      testing: true,
     }),
-    // production
-    prod: createTasksForScriptBundles({ taskPrefix: 'scripts:core:prod' }),
+    // built for CI test debugging
+    testDev: createTasksForScriptBundles({
+      buildTarget: BUILD_TARGETS.E2E_TEST_DEV,
+      taskPrefix: 'scripts:core:test-live',
+    }),
   };
 
-  // high level tasks
-
-  const { dev, test, testDev, prod } = core;
-  return { dev, test, testDev, prod };
-
-  function createTasksForScriptBundles({
-    taskPrefix,
-    devMode = false,
-    testing = false,
-  }) {
+  /**
+   * Define tasks for building the JavaScript modules used by the extension.
+   * This function returns a single task that builds JavaScript modules in
+   * parallel for a single type of build (e.g. dev, testing, production).
+   *
+   * @param {object} options - The build options.
+   * @param {boolean} options.buildTarget - The build target that these
+   * JavaScript modules are intended for.
+   * @param {string} options.taskPrefix - The prefix to use for the name of
+   * each defined task.
+   * @returns
+   */
+  function createTasksForScriptBundles({ buildTarget, taskPrefix }) {
     const standardEntryPoints = ['background', 'ui', 'content-script'];
     const standardSubtask = createTask(
       `${taskPrefix}:standardEntryPoints`,
       createFactoredBuild({
         applyLavaMoat,
         browserPlatforms,
+        buildTarget,
         buildType,
-        devMode,
         entryFiles: standardEntryPoints.map((label) => {
           if (label === 'content-script') {
             return './app/vendor/trezor/content-script.js';
@@ -241,7 +279,6 @@ function createScriptTasks({
         ignoredFiles,
         policyOnly,
         shouldLintFenceFiles,
-        testing,
         version,
       }),
     );
@@ -250,24 +287,24 @@ function createScriptTasks({
     // because inpage bundle result is included inside contentscript
     const contentscriptSubtask = createTask(
       `${taskPrefix}:contentscript`,
-      createContentscriptBundle({ devMode, testing }),
+      createContentscriptBundle({ buildTarget }),
     );
 
     // this can run whenever
     const disableConsoleSubtask = createTask(
       `${taskPrefix}:disable-console`,
-      createDisableConsoleBundle({ devMode, testing }),
+      createDisableConsoleBundle({ buildTarget }),
     );
 
     // this can run whenever
     const installSentrySubtask = createTask(
       `${taskPrefix}:sentry`,
-      createSentryBundle({ devMode, testing }),
+      createSentryBundle({ buildTarget }),
     );
 
     // task for initiating browser livereload
     const initiateLiveReload = async () => {
-      if (devMode) {
+      if (isDevBuild(buildTarget)) {
         // trigger live reload when the bundles are updated
         // this is not ideal, but overcomes the limitations:
         // - run from the main process (not child process tasks)
@@ -300,34 +337,32 @@ function createScriptTasks({
     return composeParallel(initiateLiveReload, ...allSubtasks);
   }
 
-  function createDisableConsoleBundle({ devMode, testing }) {
+  function createDisableConsoleBundle({ buildTarget }) {
     const label = 'disable-console';
     return createNormalBundle({
       browserPlatforms,
+      buildTarget,
       buildType,
       destFilepath: `${label}.js`,
-      devMode,
       entryFilepath: `./app/scripts/${label}.js`,
       ignoredFiles,
       label,
-      testing,
       policyOnly,
       shouldLintFenceFiles,
       version,
     });
   }
 
-  function createSentryBundle({ devMode, testing }) {
+  function createSentryBundle({ buildTarget }) {
     const label = 'sentry-install';
     return createNormalBundle({
       browserPlatforms,
+      buildTarget,
       buildType,
       destFilepath: `${label}.js`,
-      devMode,
       entryFilepath: `./app/scripts/${label}.js`,
       ignoredFiles,
       label,
-      testing,
       policyOnly,
       shouldLintFenceFiles,
       version,
@@ -335,34 +370,32 @@ function createScriptTasks({
   }
 
   // the "contentscript" bundle contains the "inpage" bundle
-  function createContentscriptBundle({ devMode, testing }) {
+  function createContentscriptBundle({ buildTarget }) {
     const inpage = 'inpage';
     const contentscript = 'contentscript';
     return composeSeries(
       createNormalBundle({
+        buildTarget,
         buildType,
         browserPlatforms,
         destFilepath: `${inpage}.js`,
-        devMode,
         entryFilepath: `./app/scripts/${inpage}.js`,
         label: inpage,
         ignoredFiles,
         policyOnly,
         shouldLintFenceFiles,
-        testing,
         version,
       }),
       createNormalBundle({
+        buildTarget,
         buildType,
         browserPlatforms,
         destFilepath: `${contentscript}.js`,
-        devMode,
         entryFilepath: `./app/scripts/${contentscript}.js`,
         label: contentscript,
         ignoredFiles,
         policyOnly,
         shouldLintFenceFiles,
-        testing,
         version,
       }),
     );
@@ -374,10 +407,9 @@ function createScriptTasks({
 async function createManifestV3AppInitializationBundle({
   jsBundles,
   browserPlatforms,
+  buildTarget,
   buildType,
-  devMode,
   ignoredFiles,
-  testing,
   policyOnly,
   shouldLintFenceFiles,
   applyLavaMoat,
@@ -404,14 +436,13 @@ async function createManifestV3AppInitializationBundle({
 
   await createNormalBundle({
     browserPlatforms: mv3BrowserPlatforms,
+    buildTarget,
     buildType,
     destFilepath: 'app-init.js',
-    devMode,
     entryFilepath: './app/scripts/app-init.js',
     extraEnvironmentVariables,
     ignoredFiles,
     label,
-    testing,
     policyOnly,
     shouldLintFenceFiles,
     version,
@@ -419,7 +450,7 @@ async function createManifestV3AppInitializationBundle({
 
   // Code below is used to set statsMode to true when testing in MV3
   // This is used to capture module initialisation stats using lavamoat.
-  if (testing) {
+  if (isTestBuild(buildTarget)) {
     const content = readFileSync('./dist/chrome/runtime-lavamoat.js', 'utf8');
     const fileOutput = content.replace('statsMode = false', 'statsMode = true');
     writeFileSync('./dist/chrome/runtime-lavamoat.js', fileOutput);
@@ -431,13 +462,12 @@ async function createManifestV3AppInitializationBundle({
 function createFactoredBuild({
   applyLavaMoat,
   browserPlatforms,
+  buildTarget,
   buildType,
-  devMode,
   entryFiles,
   ignoredFiles,
   policyOnly,
   shouldLintFenceFiles,
-  testing,
   version,
 }) {
   return async function () {
@@ -447,25 +477,23 @@ function createFactoredBuild({
     const { bundlerOpts, events } = buildConfiguration;
 
     // devMode options
-    const reloadOnChange = Boolean(devMode);
-    const minify = Boolean(devMode) === false;
+    const reloadOnChange = isDevBuild(buildTarget);
+    const minify = !isDevBuild(buildTarget);
 
     const envVars = getEnvironmentVariables({
+      buildTarget,
       buildType,
-      devMode,
-      testing,
       version,
     });
     setupBundlerDefaults(buildConfiguration, {
+      buildTarget,
       buildType,
-      devMode,
       envVars,
       ignoredFiles,
       policyOnly,
       minify,
       reloadOnChange,
       shouldLintFenceFiles,
-      testing,
     });
 
     // set bundle entries
@@ -594,10 +622,9 @@ function createFactoredBuild({
               await createManifestV3AppInitializationBundle({
                 jsBundles,
                 browserPlatforms,
+                buildTarget,
                 buildType,
-                devMode,
                 ignoredFiles,
-                testing,
                 policyOnly,
                 shouldLintFenceFiles,
                 applyLavaMoat,
@@ -631,16 +658,15 @@ function createFactoredBuild({
 
 function createNormalBundle({
   browserPlatforms,
+  buildTarget,
   buildType,
   destFilepath,
-  devMode,
   entryFilepath,
   extraEnvironmentVariables,
   ignoredFiles,
   label,
   policyOnly,
   shouldLintFenceFiles,
-  testing,
   version,
 }) {
   return async function () {
@@ -650,28 +676,26 @@ function createNormalBundle({
     const { bundlerOpts, events } = buildConfiguration;
 
     // devMode options
+    const devMode = isDevBuild(buildTarget);
     const reloadOnChange = Boolean(devMode);
     const minify = Boolean(devMode) === false;
 
     const envVars = {
       ...getEnvironmentVariables({
+        buildTarget,
         buildType,
-        devMode,
-        testing,
         version,
       }),
       ...extraEnvironmentVariables,
     };
     setupBundlerDefaults(buildConfiguration, {
       buildType,
-      devMode,
       envVars,
       ignoredFiles,
       policyOnly,
       minify,
       reloadOnChange,
       shouldLintFenceFiles,
-      testing,
     });
 
     // set bundle entries
@@ -713,15 +737,14 @@ function createBuildConfiguration() {
 function setupBundlerDefaults(
   buildConfiguration,
   {
+    buildTarget,
     buildType,
-    devMode,
     envVars,
     ignoredFiles,
     policyOnly,
     minify,
     reloadOnChange,
     shouldLintFenceFiles,
-    testing,
   },
 ) {
   const { bundlerOpts } = buildConfiguration;
@@ -744,13 +767,13 @@ function setupBundlerDefaults(
     // Look for TypeScript files when walking the dependency tree
     extensions,
     // Use entryFilepath for moduleIds, easier to determine origin file
-    fullPaths: devMode || testing,
+    fullPaths: isDevBuild(buildTarget) || isTestBuild(buildTarget),
     // For sourcemaps
     debug: true,
   });
 
   // Ensure react-devtools are not included in non-dev builds
-  if (!devMode || testing) {
+  if (buildTarget !== BUILD_TARGETS.DEVELOPMENT) {
     bundlerOpts.manualIgnore.push('react-devtools');
     bundlerOpts.manualIgnore.push('remote-redux-devtools');
   }
@@ -776,7 +799,7 @@ function setupBundlerDefaults(
     }
 
     // Setup source maps
-    setupSourcemaps(buildConfiguration, { devMode });
+    setupSourcemaps(buildConfiguration, { buildTarget });
   }
 }
 
@@ -830,7 +853,7 @@ function setupMinification(buildConfiguration) {
   });
 }
 
-function setupSourcemaps(buildConfiguration, { devMode }) {
+function setupSourcemaps(buildConfiguration, { buildTarget }) {
   const { events } = buildConfiguration;
   events.on('configurePipeline', ({ pipeline }) => {
     pipeline.get('sourcemaps:init').push(sourcemaps.init({ loadMaps: true }));
@@ -839,7 +862,7 @@ function setupSourcemaps(buildConfiguration, { devMode }) {
       // Use inline source maps for development due to Chrome DevTools bug
       // https://bugs.chromium.org/p/chromium/issues/detail?id=931675
       .push(
-        devMode
+        isDevBuild(buildTarget)
           ? sourcemaps.write()
           : sourcemaps.write('../sourcemaps', { addComment: false }),
       );
@@ -906,11 +929,13 @@ async function createBundle(buildConfiguration, { reloadOnChange }) {
   }
 }
 
-function getEnvironmentVariables({ buildType, devMode, testing, version }) {
-  const environment = getEnvironment({ devMode, testing });
+function getEnvironmentVariables({ buildTarget, buildType, version }) {
+  const environment = getEnvironment({ buildTarget });
   if (environment === ENVIRONMENT.PRODUCTION && !process.env.SENTRY_DSN) {
     throw new Error('Missing SENTRY_DSN environment variable');
   }
+  const devMode = isDevBuild(buildTarget);
+  const testing = isTestBuild(buildTarget);
   return {
     METAMASK_DEBUG: devMode,
     METAMASK_ENVIRONMENT: environment,
@@ -924,7 +949,7 @@ function getEnvironmentVariables({ buildType, devMode, testing, version }) {
     CONF: devMode ? metamaskrc : {},
     SENTRY_DSN: process.env.SENTRY_DSN,
     SENTRY_DSN_DEV: metamaskrc.SENTRY_DSN_DEV,
-    INFURA_PROJECT_ID: getInfuraProjectId({ buildType, environment, testing }),
+    INFURA_PROJECT_ID: getInfuraProjectId({ buildTarget, environment }),
     SEGMENT_HOST: metamaskrc.SEGMENT_HOST,
     SEGMENT_WRITE_KEY: getSegmentWriteKey({ buildType, environment }),
     SWAPS_USE_DEV_APIS: process.env.SWAPS_USE_DEV_APIS === '1',
@@ -934,14 +959,14 @@ function getEnvironmentVariables({ buildType, devMode, testing, version }) {
   };
 }
 
-function getEnvironment({ devMode, testing }) {
+function getEnvironment({ buildTarget }) {
   // get environment slug
-  if (devMode) {
-    return ENVIRONMENT.DEVELOPMENT;
-  } else if (testing) {
-    return ENVIRONMENT.TESTING;
-  } else if (process.env.CIRCLE_BRANCH === 'master') {
+  if (buildTarget === BUILD_TARGETS.PRODUCTION) {
     return ENVIRONMENT.PRODUCTION;
+  } else if (isDevBuild(buildTarget)) {
+    return ENVIRONMENT.DEVELOPMENT;
+  } else if (isTestBuild(buildTarget)) {
+    return ENVIRONMENT.TESTING;
   } else if (
     /^Version-v(\d+)[.](\d+)[.](\d+)/u.test(process.env.CIRCLE_BRANCH)
   ) {

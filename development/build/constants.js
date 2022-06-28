@@ -1,6 +1,15 @@
+const BUILD_TARGETS = {
+  DEVELOPMENT: 'dev',
+  DISTRIBUTION: 'dist',
+  PRODUCTION: 'prod',
+  E2E_TEST: 'test',
+  E2E_TEST_DEV: 'testDev',
+};
+
 const TASKS = {
   CLEAN: 'clean',
   DEV: 'dev',
+  DIST: 'dist',
   LINT_SCSS: 'lint-scss',
   MANIFEST_DEV: 'manifest:dev',
   MANIFEST_PROD: 'manifest:prod',
@@ -45,4 +54,4 @@ const TASKS = {
   ZIP: 'zip',
 };
 
-module.exports = { TASKS };
+module.exports = { BUILD_TARGETS, TASKS };

@@ -140,6 +140,17 @@ function defineAndRunBuildTasks() {
     ),
   );
 
+  // build production-like distributable build
+  createTask(
+    TASKS.DIST,
+    composeSeries(
+      clean,
+      styleTasks.prod,
+      composeParallel(scriptTasks.dist, staticTasks.prod, manifestTasks.prod),
+      zip,
+    ),
+  );
+
   // build for prod release
   createTask(
     TASKS.PROD,
