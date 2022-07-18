@@ -72,13 +72,22 @@ describe('Send token from inside MetaMask', function () {
         );
         await driver.fill('.unit-input__input', '1');
         // Continue to next screen
-        await driver.delay(1000);
+
         await driver.waitForSelector(
           '[data-testid="page-container-footer-next"]',
         );
         await driver.clickElement('[data-testid="page-container-footer-next"]');
 
-        await driver.delay(2000);
+        const estimatedGasFee = await driver.waitForSelector({
+          css: '.currency-display-component__text',
+          text: '0.000154',
+        });
+        assert.notEqual(
+          await estimatedGasFee.getText(),
+          '0',
+          'Estimated gas fee should not be 0',
+        );
+
         await driver.waitForSelector({
           text: 'Hex',
           tag: 'button',
