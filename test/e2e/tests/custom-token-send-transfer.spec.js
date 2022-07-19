@@ -92,6 +92,7 @@ describe('Send token from inside MetaMask', function () {
           text: '1 TST',
           tag: 'h1',
         });
+        await driver.delay(1000);
         await driver.clickElement({
           text: 'Hex',
           tag: 'button',
