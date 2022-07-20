@@ -305,7 +305,11 @@ describe('Send a custom token from dapp', function () {
           '.confirm-page-container-summary__title-text',
         );
         const tokenAmountText = await tokenAmount.getText();
-        assert.equal(tokenAmountText, '1.5 TST', 'Token amount should be 1.5 TST');
+        assert.equal(
+          tokenAmountText,
+          '1.5 TST',
+          'Token amount should be 1.5 TST',
+        );
 
         await driver.clickElement({ text: 'Confirm', tag: 'button' });
 
