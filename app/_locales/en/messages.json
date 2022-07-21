@@ -623,7 +623,7 @@
     "message": "Connecting to Kovan test network"
   },
   "connectingToMainnet": {
-    "message": "Connecting to Ethereum mainnet"
+    "message": "Connecting to Ethereum main network"
   },
   "connectingToRinkeby": {
     "message": "Connecting to Rinkeby test network"
@@ -1117,7 +1117,7 @@
     "message": "Illegal character for ENS."
   },
   "ensNotFoundOnCurrentNetwork": {
-    "message": "ENS name not found on the current network. Try switching to Ethereum mainnet."
+    "message": "ENS name not found on the current network. Try switching to Ethereum main network."
   },
   "ensNotSupportedOnNetwork": {
     "message": "Network does not support ENS"
@@ -1790,7 +1790,7 @@
   },
   "lowGasSettingToolTipMessage": {
     "message": "Use $1 to wait for a cheaper price. Time estimates are much less accurate as prices are somewhat unpredictable.",
-    "description": "$1 is key 'low' separated here so that it can be passed in with bold fontweight"
+    "description": "$1 is key 'low' separated here so that it can be passed in with bold font-weight"
   },
   "lowLowercase": {
     "message": "low"
@@ -1799,10 +1799,10 @@
     "message": "Future transactions will queue after this one."
   },
   "mainnet": {
-    "message": "Ethereum mainnet"
+    "message": "Ethereum main network"
   },
   "mainnetToken": {
-    "message": "This address matches a known Ethereum mainnet token address. Recheck the contract address and network for the token you are trying to add."
+    "message": "This address matches a known Ethereum main network token address. Recheck the contract address and network for the token you are trying to add."
   },
   "makeAnotherSwap": {
     "message": "Create a new swap"
@@ -1834,7 +1834,7 @@
   },
   "mediumGasSettingToolTipMessage": {
     "message": "Use $1 for fast processing at current market price.",
-    "description": "$1 is key 'medium' (text: 'Market') separated here so that it can be passed in with bold fontweight"
+    "description": "$1 is key 'medium' (text: 'Market') separated here so that it can be passed in with bold font-weight"
   },
   "memo": {
     "message": "memo"
@@ -2176,7 +2176,7 @@
     "description": "The 'call to action' on the button, or link, of the 'Visit in Settings' notification. Upon clicking, users will be taken to Settings page."
   },
   "notifications10DescriptionOne": {
-    "message": "Improved token detection is currently available on Ethereum mainnet, Polygon, BSC, and Avalanche networks. More to come!"
+    "message": "Improved token detection is currently available on Ethereum main network, Polygon, BSC, and Avalanche networks. More to come!"
   },
   "notifications10DescriptionThree": {
     "message": "Token detection feature is ON by default. But you can disable it from Settings."
@@ -2269,7 +2269,7 @@
     "description": "Description of a notification in the 'See What's New' popup. Describes changes for ledger and EIP1559 in v10.1.0"
   },
   "notifications7DescriptionTwo": {
-    "message": "To complete transactions on Ethereum mainnet, make sure your Ledger device has the latest firmware.",
+    "message": "To complete transactions on Ethereum main network, make sure your Ledger device has the latest firmware.",
     "description": "Description of a notification in the 'See What's New' popup. Describes the need to update ledger firmware."
   },
   "notifications7Title": {
@@ -3750,7 +3750,7 @@
     "message": "Token detection is currently available on $1. $2"
   },
   "tokenDetectionAnnouncement": {
-    "message": "New! Improved token detection is available on Ethereum mainnet as an experimental feature. $1"
+    "message": "New! Improved token detection is available on Ethereum main network as an experimental feature. $1"
   },
   "tokenDetectionToggleDescription": {
     "message": "ConsenSys’ token API aggregates a list of tokens from various third party token lists. Turning it off will stop detecting new tokens added to your wallet, but will keep the option to search for tokens to import."
