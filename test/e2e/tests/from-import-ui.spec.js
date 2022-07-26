@@ -77,9 +77,9 @@ describe('MetaMask Import UI', function () {
         await driver.clickElement('.network-display');
         await driver.clickElement({ text: 'Localhost', tag: 'span' });
 
-        // choose Create Account from the account menu
+        // choose Create account from the account menu
         await driver.clickElement('.account-menu__icon');
-        await driver.clickElement({ text: 'Create Account', tag: 'div' });
+        await driver.clickElement({ text: 'Create account', tag: 'div' });
 
         // set account name
         await driver.fill('.new-account-create-form input', '2nd account');
@@ -202,7 +202,7 @@ describe('MetaMask Import UI', function () {
         await driver.press('#password', driver.Key.ENTER);
 
         // Imports an account with private key
-        // choose Create Account from the account menu
+        // choose Create account from the account menu
         await driver.clickElement('.account-menu__icon');
         await driver.clickElement({ text: 'Import Account', tag: 'div' });
 
@@ -231,7 +231,7 @@ describe('MetaMask Import UI', function () {
         assert.equal(await importedLabel.getText(), 'IMPORTED');
 
         // Imports and removes an account
-        // choose Create Account from the account menu
+        // choose Create account from the account menu
         await driver.clickElement({ text: 'Import Account', tag: 'div' });
         // enter private key
         await driver.fill('#private-key-box', testPrivateKey2);

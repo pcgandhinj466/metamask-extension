@@ -115,7 +115,7 @@ describe('Account Menu', () => {
     });
   });
 
-  describe('Create Account', () => {
+  describe('Create account', () => {
     let createAccount;
 
     it('renders create account item', () => {
