@@ -43,6 +43,7 @@ import {
 import { EVENT } from '../../shared/constants/metametrics';
 import { parseSmartTransactionsError } from '../pages/swaps/swaps.util';
 import { isEqualCaseInsensitive } from '../../shared/modules/string-utils';
+import { isManifestV3 } from '../../shared/modules/mv3.utils';
 ///: BEGIN:ONLY_INCLUDE_IN(flask)
 import { NOTIFICATIONS_EXPIRATION_DELAY } from '../helpers/constants/notifications';
 ///: END:ONLY_INCLUDE_IN
@@ -51,9 +52,37 @@ import * as actionConstants from './actionConstants';
 
 let background = null;
 let promisifiedBackground = null;
+const retryQueue = [];
+
+const submitRequestToBackground = async (method, args) => {
+  if (isManifestV3) {
+    if (background.connectionStream.readable) {
+      await promisifiedBackground[method](...args);
+    } else {
+      retryQueue.push({ method, args });
+    }
+  } else {
+    await promisifiedBackground[method](...args);
+  }
+};
+
+const clearRetryQueue = () => {
+  while (retryQueue.length) {
+    const item = retryQueue.shift();
+    submitRequestToBackground(item);
+  }
+};
+
 export function _setBackgroundConnection(backgroundConnection) {
   background = backgroundConnection;
   promisifiedBackground = pify(background);
+  if (isManifestV3) {
+    // This function call here will clear the queue of actions
+    // pending while connection stream is not available.
+    // Currently when service worker is revived we create new streams
+    // in later version we might try to improve it by reviving same streams.
+    clearRetryQueue();
+  }
 }
 
 export function goHome() {
@@ -217,7 +246,7 @@ export function verifyPassword(password) {
 }
 
 export async function verifySeedPhrase() {
-  const encodedSeedPhrase = await promisifiedBackground.verifySeedPhrase();
+  const encodedSeedPhrase = await submitRequestToBackground('verifySeedPhrase');
   return Buffer.from(encodedSeedPhrase).toString('utf8');
 }
 
@@ -324,9 +353,12 @@ export function importNewAccount(strategy, args) {
     );
     try {
       log.debug(`background.importAccountWithStrategy`);
-      await promisifiedBackground.importAccountWithStrategy(strategy, args);
+      await submitRequestToBackground('importAccountWithStrategy', [
+        strategy,
+        args,
+      ]);
       log.debug(`background.getState`);
-      newState = await promisifiedBackground.getState();
+      newState = await submitRequestToBackground('getState');
     } catch (err) {
       dispatch(displayWarning(err.message));
       throw err;
@@ -353,7 +385,7 @@ export function addNewAccount() {
 
     let newIdentities;
     try {
-      const { identities } = await promisifiedBackground.addNewAccount();
+      const { identities } = await submitRequestToBackground('addNewAccount');
       newIdentities = identities;
     } catch (error) {
       dispatch(displayWarning(error.message));
@@ -377,10 +409,10 @@ export function checkHardwareStatus(deviceName, hdPath) {
 
     let unlocked;
     try {
-      unlocked = await promisifiedBackground.checkHardwareStatus(
+      unlocked = await submitRequestToBackground('checkHardwareStatus', [
         deviceName,
         hdPath,
-      );
+      ]);
     } catch (error) {
       log.error(error);
       dispatch(displayWarning(error.message));
@@ -399,7 +431,7 @@ export function forgetDevice(deviceName) {
   return async (dispatch) => {
     dispatch(showLoadingIndication());
     try {
-      await promisifiedBackground.forgetDevice(deviceName);
+      await submitRequestToBackground('forgetDevice', [deviceName]);
     } catch (error) {
       log.error(error);
       dispatch(displayWarning(error.message));
@@ -424,7 +456,7 @@ export function connectHardware(deviceName, page, hdPath, t) {
     let accounts;
     try {
       if (deviceName === DEVICE_NAMES.LEDGER) {
-        await promisifiedBackground.establishLedgerTransportPreference();
+        await submitRequestToBackground('establishLedgerTransportPreference');
       }
       if (
         deviceName === DEVICE_NAMES.LEDGER &&
@@ -441,11 +473,11 @@ export function connectHardware(deviceName, page, hdPath, t) {
         }
       }
 
-      accounts = await promisifiedBackground.connectHardware(
+      accounts = await submitRequestToBackground('connectHardware', [
         deviceName,
         page,
         hdPath,
-      );
+      ]);
     } catch (error) {
       log.error(error);
       if (
@@ -488,12 +520,12 @@ export function unlockHardwareWalletAccounts(
 
     for (const index of indexes) {
       try {
-        await promisifiedBackground.unlockHardwareWalletAccount(
+        await submitRequestToBackground('unlockHardwareWalletAccount', [
           index,
           deviceName,
           hdPath,
           hdPathDescription,
-        );
+        ]);
       } catch (e) {
         log.error(e);
         dispatch(displayWarning(e.message));
@@ -522,7 +554,7 @@ export function setCurrentCurrency(currencyCode) {
     dispatch(showLoadingIndication());
     log.debug(`background.setCurrentCurrency`);
     try {
-      await promisifiedBackground.setCurrentCurrency(currencyCode);
+      await submitRequestToBackground('setCurrentCurrency', [currencyCode]);
       await forceUpdateMetamaskState(dispatch);
     } catch (error) {
       log.error(error);
@@ -541,7 +573,7 @@ export function signMsg(msgData) {
     log.debug(`actions calling background.signMessage`);
     let newState;
     try {
-      newState = await promisifiedBackground.signMessage(msgData);
+      newState = await submitRequestToBackground('signMessage', [msgData]);
     } catch (error) {
       log.error(error);
       dispatch(displayWarning(error.message));
@@ -565,7 +597,9 @@ export function signPersonalMsg(msgData) {
 
     let newState;
     try {
-      newState = await promisifiedBackground.signPersonalMessage(msgData);
+      newState = await submitRequestToBackground('signPersonalMessage', [
+        msgData,
+      ]);
     } catch (error) {
       log.error(error);
       dispatch(displayWarning(error.message));
@@ -817,7 +851,7 @@ export function updateTransaction(txData, dontShowLoadingIndicator) {
     !dontShowLoadingIndicator && dispatch(showLoadingIndication());
 
     try {
-      await promisifiedBackground.updateTransaction(txData);
+      await submitRequestToBackground('updateTransaction', [txData]);
     } catch (error) {
       dispatch(updateTransactionParams(txData.id, txData.txParams));
       dispatch(hideLoadingIndication());
