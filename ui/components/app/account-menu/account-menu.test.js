@@ -109,7 +109,7 @@ describe('Account Menu', () => {
     });
 
     it('simulate click', () => {
-      logout.fist().simulate('click');
+      logout.first().simulate('click');
       expect(props.lockMetamask.calledOnce).toStrictEqual(true);
       expect(props.history.push.getCall(0).args[0]).toStrictEqual('/');
     });
