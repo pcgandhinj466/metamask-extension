@@ -313,14 +313,64 @@ export default class AccountMenu extends Component {
     );
   }
 
+  renderLoader() {
+    const { t } = this.context;
+
+    return (
+      <Box
+        display={DISPLAY.FLEX}
+        alignItems={ALIGN_ITEMS.CENTER}
+        justifyContent={JUSTIFY_CONTENT.CENTER}
+        backgroundColor={COLORS.BACKGROUND_DEFAULT}
+        className="account-menu__refreshing-accounts"
+      >
+        <Box
+          display={DISPLAY.FLEX}
+          flexDirection={FLEX_DIRECTION.COLUMN}
+          alignItems={ALIGN_ITEMS.CENTER}
+        >
+          <img
+            className="account-menu__refreshing-accounts__logo"
+            src="/images/logo/metamask-fox.svg"
+            alt=""
+          />
+          <Box
+            display={DISPLAY.FLEX}
+            alignItems={ALIGN_ITEMS.CENTER}
+            justifyContent={JUSTIFY_CONTENT.CENTER}
+            flexDirection={FLEX_DIRECTION.ROW}
+            backgroundColor={COLORS.BACKGROUND_ALTERNATIVE}
+            padding={[0, 3, 0, 3]}
+            borderRadius={SIZES.LG}
+            marginTop={5}
+            className="account-menu__refreshing-accounts__loader"
+          >
+            <Spinner
+              color="#F7C06C"
+              className="account-menu__refreshing-accounts__loading-overlay__spinner"
+            />
+            <Typography
+              variant={TYPOGRAPHY.H6}
+              fontWeight={FONT_WEIGHT.NORMAL}
+              color={COLORS.TEXT_ALTERNATIVE}
+              boxProps={{ marginLeft: 2 }}
+            >
+              {t('refreshingAccounts')}
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
+    );
+  }
+
   render() {
     const { t, trackEvent } = this.context;
     const {
       shouldShowAccountsSearch,
       isAccountMenuOpen,
-      isLoading,
       toggleAccountMenu,
       lockMetamask,
+      isLoading,
       history,
       accounts,
       autoDetectAccounts,
@@ -344,51 +394,7 @@ export default class AccountMenu extends Component {
       <div className="account-menu">
         <div className="account-menu__close-area" onClick={toggleAccountMenu} />
         <Box className="account-menu__my-accounts">
-          {isLoading && (
-            <Box
-              display={DISPLAY.FLEX}
-              alignItems={ALIGN_ITEMS.CENTER}
-              justifyContent={JUSTIFY_CONTENT.CENTER}
-              backgroundColor={COLORS.BACKGROUND_DEFAULT}
-              className="account-menu__refreshing-accounts"
-            >
-              <Box
-                display={DISPLAY.FLEX}
-                flexDirection={FLEX_DIRECTION.COLUMN}
-                alignItems={ALIGN_ITEMS.CENTER}
-              >
-                <img
-                  className="account-menu__refreshing-accounts__logo"
-                  src="/images/logo/metamask-fox.svg"
-                  alt=""
-                />
-                <Box
-                  display={DISPLAY.FLEX}
-                  alignItems={ALIGN_ITEMS.CENTER}
-                  justifyContent={JUSTIFY_CONTENT.CENTER}
-                  flexDirection={FLEX_DIRECTION.ROW}
-                  backgroundColor={COLORS.BACKGROUND_ALTERNATIVE}
-                  padding={[0, 3, 0, 3]}
-                  borderRadius={SIZES.LG}
-                  marginTop={5}
-                  className="account-menu__refreshing-accounts__loader"
-                >
-                  <Spinner
-                    color="#F7C06C"
-                    className="account-menu__refreshing-accounts__loading-overlay__spinner"
-                  />
-                  <Typography
-                    variant={TYPOGRAPHY.H6}
-                    fontWeight={FONT_WEIGHT.NORMAL}
-                    color={COLORS.TEXT_ALTERNATIVE}
-                    boxProps={{ marginLeft: 2 }}
-                  >
-                    {t('refreshingAccounts')}
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
-          )}
+          {isLoading && this.renderLoader()}
           <AccountMenuItem className="account-menu__header">
             <Box
               width={BLOCK_SIZES.FULL}
@@ -410,14 +416,15 @@ export default class AccountMenu extends Component {
               </Button>
             </Box>
             <Box>
-              <div
+              <Button
+                type="inline"
                 className="account-menu__refresh-button"
                 onClick={() => {
                   autoDetectAccounts();
                 }}
               >
                 {t('refreshAccounts')}
-              </div>
+              </Button>
             </Box>
           </AccountMenuItem>
           <div className="account-menu__divider" />
