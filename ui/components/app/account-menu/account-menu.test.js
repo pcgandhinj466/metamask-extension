@@ -105,11 +105,11 @@ describe('Account Menu', () => {
 
     it('logout', () => {
       logout = wrapper.find(Button);
-      expect(logout).toHaveLength(1);
+      expect(logout).toHaveLength(2);
     });
 
     it('simulate click', () => {
-      logout.simulate('click');
+      logout.fist().simulate('click');
       expect(props.lockMetamask.calledOnce).toStrictEqual(true);
       expect(props.history.push.getCall(0).args[0]).toStrictEqual('/');
     });
